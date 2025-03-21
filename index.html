@@ -47,7 +47,7 @@
             discussionHistory.push(message);
             inputBox.value = "";
 
-            fetch('https://forum-api.onrender.com/chat', {  // Use your deployed API URL
+            fetch('https://forum-api-13df.onrender.com/chat', {  // Use your deployed API URL
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: message })
