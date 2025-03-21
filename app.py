@@ -38,5 +38,5 @@ def chat():
         return jsonify({"reply": f"Server error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Get port from environment variable
+    port = int(os.environ.get("PORT", 10000))  # Render uses dynamic ports
     app.run(host="0.0.0.0", port=port, debug=True)
