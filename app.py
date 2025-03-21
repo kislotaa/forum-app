@@ -9,6 +9,10 @@ CORS(app)
 # Load OpenAI API Key from environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+@app.route("/")
+def home():
+    return "Flask API is running!", 200
+
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
