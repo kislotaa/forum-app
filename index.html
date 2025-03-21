@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discussion Forum</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; text-align: center; }
+        .container { width: 80%; max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px #ccc; }
+        h2 { color: #333; }
+        .forum-box { border: 1px solid #ddd; padding: 10px; height: 400px; overflow-y: auto; background-color: #ffffff; text-align: left; }
+        .post { border-bottom: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+        .post-user { font-weight: bold; color: #007bff; }
+        .post-content { margin-top: 5px; color: #333; }
+        textarea { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; margin-top: 10px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        .discussion-list { margin-top: 20px; text-align: left; }
+        .discussion-list ul { list-style-type: none; padding: 0; }
+        .discussion-list li { background: #f1f1f1; padding: 10px; margin: 5px 0; border-radius: 5px; cursor: pointer; }
+        .discussion-list li:hover { background: #e0e0e0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Discussion Forum</h2>
+        <div class="forum-box" id="discussionBox"></div>
+        <textarea id="inputBox" placeholder="Ask a question or start a discussion..."></textarea>
+        <button onclick="postMessage()">Post</button>
+        
+        <div class="discussion-list">
+            <h3>Recent Discussions</h3>
+            <ul id="discussionHistory"></ul>
+        </div>
+    </div>
+
+    <script>
+        let discussionHistory = [];
+        
+        function postMessage() {
+            let inputBox = document.getElementById("inputBox");
+            let message = inputBox.value.trim();
+            if (message === "") return;
+
+            let discussionBox = document.getElementById("discussionBox");
+            discussionBox.innerHTML += `<div class='post'><span class='post-user'>User:</span><div class='post-content'>${message}</div></div>`;
+            discussionHistory.push(message);
+            inputBox.value = "";
+
+            fetch('https://forum-api.onrender.com/chat', {  // Use your deployed API URL
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                discussionBox.innerHTML += `<div class='post'><span class='post-user'>Response:</span><div class='post-content'>${data.reply}</div></div>`;
+                discussionHistory.push(data.reply);
+                updateDiscussionList();
+                discussionBox.scrollTop = discussionBox.scrollHeight;
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                discussionBox.innerHTML += `<p style="color:red;"><strong>Error:</strong> Failed to get a response</p>`;
+            });
+        }
+
+        function updateDiscussionList() {
+            let discussionList = document.getElementById("discussionHistory");
+            discussionList.innerHTML = "";
+            discussionHistory.forEach(entry => {
+                let li = document.createElement("li");
+                li.textContent = entry;
+                discussionList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
