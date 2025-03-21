@@ -1,17 +1,13 @@
 import openai
 import os
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-# Load API key from environment variable
+# Load OpenAI API Key from environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
-@app.route("/")
-def index():
-    return render_template("index.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -23,14 +19,12 @@ def chat():
         user_message = data["message"]
         print("User message:", user_message)  # Debugging
 
-        # Correct OpenAI API call using the new format
+        # OpenAI API call using GPT-4o model
         client = openai.OpenAI(api_key=openai.api_key)
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[{"role": "user", "content": user_message}]
         )
-
-        print("OpenAI response:", response)  # Debugging
 
         bot_reply = response.choices[0].message.content
         return jsonify({"reply": bot_reply})
@@ -40,4 +34,5 @@ def chat():
         return jsonify({"reply": f"Server error: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Get port from environment variable
+    app.run(host="0.0.0.0", port=port, debug=True)
